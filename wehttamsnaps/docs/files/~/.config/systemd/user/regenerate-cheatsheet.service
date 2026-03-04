@@ -1,0 +1,10 @@
+[Unit]
+Description=Regenerate Niri cheatsheet (oneshot)
+
+[Service]
+Type=oneshot
+# Use %h expansion so the unit is portable across users
+ExecStart=%h/.config/wehttamsnaps/scripts/regenerate_cheatsheet.sh
+# Make sure the service's stdout/stderr are visible in the user journal
+StandardOutput=journal
+StandardError=journal

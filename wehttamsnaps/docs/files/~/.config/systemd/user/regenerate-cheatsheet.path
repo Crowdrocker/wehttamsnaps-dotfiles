@@ -1,0 +1,15 @@
+[Unit]
+Description=Watch Niri KDL and trigger cheatsheet regeneration
+
+[Path]
+# PathModified triggers when the file's mtime is changed (saved).
+# Update this path if your repo is somewhere else.
+PathModified=%h/WehttamSnaps-Niri/dots/.config/niri/snaps/10-wiri_keybinds.kdl
+# Also trigger when the file appears (useful the first time)
+PathExists=%h/WehttamSnaps-Niri/dots/.config/niri/snaps/10-wiri_keybinds.kdl
+
+# Unit to activate
+Unit=regenerate-cheatsheet.service
+
+[Install]
+WantedBy=default.target

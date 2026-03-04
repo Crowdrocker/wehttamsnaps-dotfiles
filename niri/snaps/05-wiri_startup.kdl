@@ -1,0 +1,76 @@
+// WehttamSnaps Niri Startup Configuration
+// Author: Matthew (Crowdrocker)
+// Hardware: Dell XPS 8700 - i7-4790 @ 4.0GHz, RX 580, 16GB RAM
+// GitHub: https://github.com/Crowdrocker/wehttamsnaps-dotfiles
+
+// ╭─────────────────────────────── AUTOSTART ────────────────────────────────────────╮
+//
+// ORDER MATTERS — services must be ready before things that depend on them.
+// Tier 1: Core daemons  (no dependencies)
+// Tier 2: System services (depend on daemons)
+// Tier 3: Shell / UI    (depend on services)
+// Tier 4: JARVIS + apps (depend on everything)
+//
+// ╰──────────────────────────────────────────────────────────────────────────────────╯
+
+// ── TIER 1: CORE DAEMONS ────────────────────────────────────────────────────────────
+
+// XWayland bridge for non-native apps (Steam, Wine, MO2, etc.)
+spawn-at-startup "xwayland-satellite"
+
+// Wallpaper daemon — must start before any swww commands fire
+spawn-sh-at-startup "swww-daemon"
+
+// Notification daemon
+spawn-at-startup "dunst"
+
+// Polkit authentication agent
+// NOTE: only run ONE polkit agent — gnome-polkit preferred
+spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+// spawn-at-startup "/usr/lib/mate-polkit/polkit-mate-authentication-agent-1"  // fallback if above not installed
+
+// ── TIER 2: SYSTEM SERVICES ─────────────────────────────────────────────────────────
+
+// Clipboard history — wl-paste must be running before copy/paste works
+spawn-at-startup "bash" "-c" "wl-paste --watch cliphist store &"
+
+// Device / hardware tray applets
+spawn-at-startup "udiskie" "--tray"       // Auto-mount USB drives
+spawn-at-startup "blueman-applet"         // Bluetooth
+spawn-at-startup "nm-applet"              // Network manager
+
+// Screen lock + idle management
+// Locks at 10min, monitors off at 15min, locks before sleep
+spawn-at-startup "sh" "-c" "swayidle -w timeout 600 'swaylock' timeout 900 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep 'swaylock'"
+
+// ── TIER 3: SHELL / UI ──────────────────────────────────────────────────────────────
+
+// Quickshell (DankMaterialShell) — main bar and widgets
+spawn-at-startup "qs" "-c" "ii"
+
+// Window switcher overlay
+spawn-sh-at-startup "niriswitcher"
+
+// Rainbow animated borders
+spawn-at-startup "bash" "-c" "~/.config/wehttamsnaps/scripts/RainbowBorders.sh"
+
+// ── TIER 4: J.A.R.V.I.S. + WEHTTAMSNAPS SERVICES ───────────────────────────────────
+spawn-at-startup "sh" "-c" "sleep 2.5 && /home/wehttamsnaps/Projects/wehttamsnaps/welcome-screen/src-tauri/target/release/app"
+
+// J.A.R.V.I.S. startup greeting
+// sleep 2 gives PipeWire time to be fully ready before paplay fires
+spawn-at-startup "sh" "-c" "sleep 2 && sound-system startup && notify-send 'J.A.R.V.I.S.' 'Systems online. Welcome back, Matthew.' -i audio-speakers"
+
+// Welcome screen — fires after J.A.R.V.I.S. greeting
+spawn-at-startup "sh" "-c" "sleep 2.5 && /home/wehttamsnaps/Projects/wehttamsnaps/welcome-screen/src-tauri/target/release/app"
+
+// Audio routing — gaming profile, delayed so PipeWire is fully settled
+spawn-at-startup "bash" "-c" "sleep 5 && ~/.config/wehttamsnaps/scripts/audio-routing.sh gaming"
+
+// Config watcher (runs quietly in background)
+spawn-at-startup "bash" "-c" "~/.config/wehttamsnaps/scripts/config-watcher.sh start &"
+
+// Save snapshot of installed packages (quiet background task)
+spawn-at-startup "~/.config/wehttamsnaps/scripts/save-program-list.sh"
+
+spawn-at-startup "sh" "-c" "sleep 2.5 && /home/wehttamsnaps/Projects/wehttamsnaps/welcome-screen/src-tauri/target/release/welcome-screen"
